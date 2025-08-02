@@ -70,7 +70,8 @@
               VerticalOptions="FillAndExpand"
               HorizontalOptions="FillAndExpand">
             
-            <ffimageloading:CachedImage Source="{Binding CurrentImage.BackingImage.Representations.Medium}"
+            <ffimageloading:CachedImage x:Name="ImageControl"
+                                      Source="{Binding CurrentImage.BackingImage.Representations.Medium}"
                                       CacheKeyFactory="{x:Static extensions:ImageCacheKeyFactory.MediumCacheFactory}"
                                       DownsampleToViewSize="True"
                                       DownloadStartedCommand="{Binding CurrentImage.DownloadStartedCommand}"
@@ -78,7 +79,9 @@
                                       FinishCommand="{Binding CurrentImage.FinishCommand}"
                                       Aspect="AspectFit"
                                       VerticalOptions="CenterAndExpand"
-                                      HorizontalOptions="CenterAndExpand">
+                                      HorizontalOptions="CenterAndExpand"
+                                      WidthRequest="{Binding Source={RelativeSource Self}, Path=Height, Converter={StaticResource PixelsToDips}, ConverterParameter={x:Static Member=Device.Android}}"
+                                      HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=Height}">
                 <ffimageloading:CachedImage.GestureRecognizers>
                     <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
                 </ffimageloading:CachedImage.GestureRecognizers>

@@ -51,15 +51,28 @@ namespace Xerpi.ViewModels
             get => _currentImage;
             private set
             {
-                if (_currentImage != value)
+                if (ReferenceEquals(_currentImage, value))
+                    return;
+
+                var oldValue = _currentImage;
+                _currentImage = value;
+                
+                // Notify property changed
+                OnPropertyChanged();
+                
+                // Update title if we have a new image
+                if (value != null)
                 {
-                    _currentImage = value;
-                    OnPropertyChanged();
-                    if (value != null)
-                    {
-                        Title = $"{value.BackingImage.Id}";
-                    }
+                    Title = $"{value.BackingImage.Id}";
+                    Debug.WriteLine($"[ImageGallery] CurrentImage set to ID: {value.BackingImage.Id}");
                 }
+                else
+                {
+                    Debug.WriteLine("[ImageGallery] CurrentImage set to null");
+                }
+                
+                // Notify that all properties have changed to ensure UI updates
+                OnPropertyChanged(string.Empty);
             }
         }
 

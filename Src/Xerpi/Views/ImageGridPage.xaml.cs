@@ -213,7 +213,23 @@ namespace Xerpi.Views
         protected override async Task OnAppearingOverride()
         {
             await base.OnAppearingOverride();
-            // Any additional appearance logic can go here
+            
+            // Reset the disposed flag when the page reappears
+            _isDisposed = false;
+            
+            // Ensure we're subscribed to the navigation messages
+            try
+            {
+                _messagingService.Unsubscribe<ImageGridViewModel, NavigatedBackToImageGridMessage>(this, string.Empty);
+                _messagingService.Subscribe<ImageGridViewModel, NavigatedBackToImageGridMessage>(
+                    this, 
+                    string.Empty, 
+                    OnNavigatedFromGallery);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ImageGridPage] Error in OnAppearingOverride: {ex.Message}");
+            }
         }
 
         protected override async Task OnDisappearingOverride()
@@ -221,15 +237,29 @@ namespace Xerpi.Views
             try
             {
                 Debug.WriteLine("[ImageGridPage] OnDisappearing - Cleaning up");
-                _isDisposed = true;
-                _messagingService.Unsubscribe<ImageGridViewModel, NavigatedBackToImageGridMessage>(this, "");
+                
+                // Only mark as disposed if we're actually being removed from the navigation stack
+                if (Navigation.NavigationStack.Count == 0 || Navigation.NavigationStack.Last() != this)
+                {
+                    _isDisposed = true;
+                    try
+                    {
+                        _messagingService.Unsubscribe<ImageGridViewModel, NavigatedBackToImageGridMessage>(this, string.Empty);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[ImageGridPage] Error unsubscribing from messages: {ex.Message}");
+                    }
+                }
+                
                 await base.OnDisappearingOverride();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[ImageGridPage] Error during cleanup: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 await base.OnDisappearingOverride();
-                throw;
+                // Don't rethrow to prevent app crashes during navigation
             }
         }
 

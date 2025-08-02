@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xerpi.Messages;
@@ -47,11 +48,38 @@ namespace Xerpi.Views
 
         private void UpdateImageDisplay()
         {
-            // This method can be used to handle any UI updates when the image changes
+            if (ViewModel?.CurrentImage == null)
+            {
+                Debug.WriteLine("[ImageGallery] Cannot update display - CurrentImage is null");
+                return;
+            }
+
+            Debug.WriteLine($"[ImageGallery] Updating display for image ID: {ViewModel.CurrentImage.BackingImage.Id}");
+            
+            // Ensure we're on the UI thread
             Device.BeginInvokeOnMainThread(() =>
             {
-                // Force update bindings
-                OnPropertyChanged(nameof(ViewModel.CurrentImage));
+                try
+                {
+                    // Force update all bindings
+                    OnPropertyChanged(string.Empty);
+                    
+                    // Force update the image source
+                    if (ImageControl != null)
+                    {
+                        // Clear the image source first to force a reload
+                        var temp = ImageControl.Source;
+                        ImageControl.Source = null;
+                        ImageControl.Source = temp;
+                        
+                        Debug.WriteLine($"[ImageGallery] Image source updated for ID: {ViewModel.CurrentImage.BackingImage.Id}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[ImageGallery] Error in UpdateImageDisplay: {ex.Message}");
+                    Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                }
             });
         }
 
