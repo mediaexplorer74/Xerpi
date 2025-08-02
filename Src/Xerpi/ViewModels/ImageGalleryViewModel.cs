@@ -60,11 +60,33 @@ namespace Xerpi.ViewModels
                 // Notify property changed
                 OnPropertyChanged();
                 
-                // Update title if we have a new image
+                // Update title and load tags if we have a new image
                 if (value != null)
                 {
                     Title = $"{value.BackingImage.Id}";
                     Debug.WriteLine($"[ImageGallery] CurrentImage set to ID: {value.BackingImage.Id}");
+                    
+                    // Ensure tags are loaded for the new image
+                    if (!value.IsInitialized)
+                    {
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await value.InitExternalData(_cts.Token);
+                                // Force UI update after tags are loaded
+                                Device.BeginInvokeOnMainThread(() =>
+                                {
+                                    OnPropertyChanged(nameof(CurrentImage));
+                                    OnPropertyChanged(nameof(CurrentImage.Tags));
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"[ImageGallery] Error initializing image data: {ex.Message}");
+                            }
+                        });
+                    }
                 }
                 else
                 {

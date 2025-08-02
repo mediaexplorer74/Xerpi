@@ -9,12 +9,12 @@
   <Identity
     Name="ME.XerpiV1"
     Publisher="CN=Admin"
-    Version="1.0.0.0" />
+    Version="1.1.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="085526ba-eee3-4d66-ac2d-e43d317a787c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>Xerpi v1.0</DisplayName>
+    <DisplayName>Xerpi v1.1</DisplayName>
     <PublisherDisplayName>Admin</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -32,7 +32,7 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="Xerpi.UWP.App">
       <uap:VisualElements
-        DisplayName="Xerpi 1.0"
+        DisplayName="Xerpi 1.1"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
         Description="Xerpi Gesture Sample"

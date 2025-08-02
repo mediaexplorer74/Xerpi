@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Xerpi.Models.API;
 using Xerpi.Services;
 using System.Linq;
@@ -27,7 +27,16 @@ namespace Xerpi.ViewModels
         public ApiImage BackingImage
         {
             get => _backingImage;
-            set => Set(ref _backingImage, value);
+            set
+            {
+                if (!ReferenceEquals(_backingImage, value))
+                {
+                    _externalDataLoaded = false;
+                    _backingImage = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Tags));
+                }
+            }
         }
 
         private ObservableCollectionExtended<ApiTag> _tags = new ObservableCollectionExtended<ApiTag>();

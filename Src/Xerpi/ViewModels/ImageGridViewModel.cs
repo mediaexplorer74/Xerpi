@@ -99,7 +99,17 @@ namespace Xerpi.ViewModels
 
         protected override async Task NavigatedToOverride()
         {
-            // TODO: If we're coming from the Flyout menu, clear _currentSearchQuery and set the imagelist to a front page default
+            // Если мы находимся на вкладке "Популярное", запускаем поиск по популярным изображениям
+            if (Title == "Popular" || Shell.Current?.CurrentItem?.Title == "Popular")
+            {
+                await TriggerSearch(new SearchParameters
+                {
+                    SearchQuery = "first_seen_at.gte: 3 days ago",
+                    SortOrder = SortOrderKind.Descending,
+                    SortProperty = SortProperties.WilsonScore
+                });
+                return;
+            }
 
             // If we have an ApiImage in our navParams, we're coming back from the gallery, and need to preserve our scroll location
             var image = NavigationParameter as ApiImage;

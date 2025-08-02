@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:d="http://xamarin.com/schemas/2014/forms/design"
@@ -26,6 +26,7 @@
             <converters:TagCategoryBackgroundConverter x:Key="BackgroundConverter"/>
             <converters:DateTimeTimeAgoConverter x:Key="PostedAtConverter"/>
             <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+            <converters:CompactCollectionViewStyleConverter x:Key="CompactCollectionViewStyleConverter"/>
 
             <!--DataTemplates-->
             <ControlTemplate x:Key="RegisteredUserTemplate">
@@ -71,12 +72,18 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!--Drag/Vote/Score bar-->
+        <!--
+        Drag/Vote/Score bar
+        
+        Not realized:
+         xct:TouchEffect.NormalBackgroundColor="{DynamicResource NavigationPrimary}"
+          xct:TouchEffect.PressedBackgroundColor="{DynamicResource NavigationPrimaryLight}"        
+        -->
         <Grid x:Name="TopBar" Grid.Row="0" 
               BackgroundColor="{DynamicResource NavigationPrimary}" 
               HeightRequest="{x:Static ctls:PostInfoBottomPanel.MinimizedHeight}"
-              xct:TouchEffect.NormalBackgroundColor="{DynamicResource NavigationPrimary}"
-              xct:TouchEffect.PressedBackgroundColor="{DynamicResource NavigationPrimaryLight}">
+              IsVisible="{Binding ShowScoreIcons, Source={x:Static viewmodels:SettingsViewModel.Instance}}"
+             >
             <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="TopBar_Tapped"/>
                 <PanGestureRecognizer PanUpdated="TopBar_PanUpdated"/>
@@ -91,7 +98,9 @@
 
             <!--Upvotes-->            
             <StackLayout Orientation="Horizontal" Spacing="4">
-                <Label Text="&#xF514;" 
+
+                <!-- Text="&#xF514;"   -->
+                <Label   Text="" 
                                FontFamily="{StaticResource MaterialFontFamily}"
                                TextColor="White"
                                FontSize="20"
@@ -115,7 +124,9 @@
                                  Orientation="Horizontal" 
                                  Spacing="4"
                                  HorizontalOptions="End">
-                <Label Text="&#xF512;"
+
+                <!-- Text="&#xF512;" -->
+                <Label Text=""
                                TextColor="White"
                                FontFamily="{StaticResource MaterialFontFamily}"
                                FontSize="20"
@@ -130,7 +141,8 @@
         <!--Description, tags, and comments-->
         <CollectionView Grid.Row="1"
                         ItemsSource="{Binding Source={x:Reference thisPostInfoPanel}, Path=Tags}"
-                        Margin="0, 5, 0, 0">
+                        Margin="0, 5, 0, 0"
+                        Style="{Binding CompactMode, Source={x:Static viewmodels:SettingsViewModel.Instance}, Converter={StaticResource CompactCollectionViewStyleConverter}}">
             <CollectionView.ItemsLayout>
                 <GridItemsLayout Orientation="Vertical"
                                  Span="2"
@@ -143,10 +155,12 @@
             </CollectionView.Header>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="api:ApiTag">
-                    <Frame BackgroundColor="{Binding Category, Converter={StaticResource BackgroundConverter}}" 
+
+                    <!--  xct:TouchEffect.PressedOpacity=".8"  -->
+                        <Frame BackgroundColor="{Binding Category, Converter={StaticResource BackgroundConverter}}" 
                            Padding="10, 5, 10, 5" 
                            Margin="0, 3, 0, 3"
-                           xct:TouchEffect.PressedOpacity=".8">
+                           >
                         <Frame.GestureRecognizers>
                             <TapGestureRecognizer Tapped="TagTapped"/>
                         </Frame.GestureRecognizers>

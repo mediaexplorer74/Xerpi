@@ -1,4 +1,4 @@
-﻿using Xamarin.Essentials;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 using Xerpi.Messages;
 
@@ -8,6 +8,8 @@ namespace Xerpi.Services
     {
         uint FilterId { get; set; }
         AppTheme SelectedTheme { get; set; }
+        bool CompactMode { get; set; }
+        bool ShowScoreIcons { get; set; }
     }
 
     public class SettingsService : ISettingsService
@@ -44,5 +46,16 @@ namespace Xerpi.Services
             }
         }
 
+        public bool CompactMode
+        {
+            get => Preferences.Get(nameof(CompactMode), false);
+            set => Preferences.Set(nameof(CompactMode), value);
+        }
+
+        public bool ShowScoreIcons
+        {
+            get => Preferences.Get(nameof(ShowScoreIcons), true);
+            set => Preferences.Set(nameof(ShowScoreIcons), value);
+        }
     }
 }

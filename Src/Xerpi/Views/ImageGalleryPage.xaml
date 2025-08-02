@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:NavigablePage xmlns="http://xamarin.com/schemas/2014/forms"                
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             
+             x:Class="Xerpi.Views.ImageGalleryPage"
+             
+             x:DataType="viewmodels:ImageGalleryViewModel"
+                     
+             xmlns:converters="clr-namespace:Xerpi.Converters"
+             xmlns:viewmodels="clr-namespace:Xerpi.ViewModels"
+             xmlns:views="clr-namespace:Xerpi.Views"
+             xmlns:controls="clr-namespace:Xerpi.Controls"
+             xmlns:ffimageloading="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+             xmlns:extensions="clr-namespace:Xerpi.Extensions"
+                     BackgroundColor="{DynamicResource BackgroundColor}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Open in browser"
+                     Order="Secondary"
+                     Command="{Binding OpenInBrowserCommand}"/>
+    </ContentPage.ToolbarItems>
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:InvertBoolConverter x:Key="InvertBoolConverter"/>
+            <converters:PixelsToDipsConverter x:Key="PixelsToDips"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding SoftBackPressedCommand}"/>
+    </Shell.BackButtonBehavior>
+
+    <!--Grid-->
+        <!--Shell.TitleView-->
+        <!--Grid RowSpacing="0" VerticalOptions="CenterAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Text="{Binding Title, StringFormat='#{0}'}"
+                   Style="{StaticResource TitleStyle}"
+                   TextColor="White"/>
+            <Label Grid.Row="1" FontSize="Small">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="{Binding CurrentImageNumber}"/>
+                        <Span Text=" / "/>
+                        <Span Text="{Binding CurrentTotalImages}"/>
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
+        </Grid-->
+
+
+        <Grid RowDefinitions="Auto,*,Auto"
+       RowSpacing="0">
+
+            <!-- Title Bar -->
+            <Label Grid.Row="0" 
+            Text="{Binding Title, StringFormat='#{0}'}"
+            Style="{StaticResource TitleStyle}"
+            HorizontalOptions="Center"
+            Margin="0,10,0,5"/>
+
+            <!-- Main Image Display -->
+            <ffimageloading:CachedImage Grid.Row="1"
+                               x:Name="ImageControl"
+                               Source="{Binding CurrentImage.BackingImage.Representations.Medium}"
+                               CacheKeyFactory="{x:Static extensions:ImageCacheKeyFactory.MediumCacheFactory}"
+                               DownsampleToViewSize="True"
+                               DownloadStartedCommand="{Binding CurrentImage.DownloadStartedCommand}"
+                               DownloadProgressCommand="{Binding CurrentImage.DownloadProgressCommand}"
+                               FinishCommand="{Binding CurrentImage.FinishCommand}"
+                               Aspect="AspectFit"
+                               VerticalOptions="CenterAndExpand"
+                               HorizontalOptions="CenterAndExpand"
+                               WidthRequest="{Binding Source={RelativeSource Self}, Path=Height, Converter={StaticResource PixelsToDips}, ConverterParameter={x:Static Member=Device.Android}}"
+                               HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=Height}">
+                <ffimageloading:CachedImage.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="TapGestureRecognizer_Tapped"/>
+                </ffimageloading:CachedImage.GestureRecognizers>
+            </ffimageloading:CachedImage>
+            <!-- Description -->
+            <Label Grid.Row="2"
+            Text="{Binding CurrentImage.BackingImage.Description}"
+            LineBreakMode="WordWrap"
+            Margin="10,5,10,0"
+            FontSize="Medium"
+            TextColor="{DynamicResource PrimaryTextColor}"/>
+            <!-- Tags and Source -->
+            <controls:PostInfoBottomPanel Grid.Row="3"
+                                   x:Name="BottomPanel"
+                                   VerticalOptions="Start"
+                                   Upvotes="{Binding CurrentImage.BackingImage.Upvotes}"
+                                   Score="{Binding CurrentImage.BackingImage.Score}"
+                                   Downvotes="{Binding CurrentImage.BackingImage.Downvotes}"
+                                   Tags="{Binding CurrentImage.Tags}"
+                                   Comments="{Binding CurrentImage.Comments}"
+                                   TagTappedCommand="{Binding TagTappedCommand}"/>
+            <!-- Comments (if not handled in PostInfoBottomPanel) -->
+            <!-- Add a placeholder for comments if needed -->
+        </Grid>
+
+        <!--controls:PostInfoBottomPanel x:Name="BottomPanel" 
+                                   VerticalOptions="End" 
+                                   Upvotes="{Binding CurrentImage.BackingImage.Upvotes}"
+                                   Score="{Binding CurrentImage.BackingImage.Score}"
+                                   Downvotes="{Binding CurrentImage.BackingImage.Downvotes}"
+                                   Tags="{Binding CurrentImage.Tags}"
+                                   Comments="{Binding CurrentImage.Comments}"
+                                   TagTappedCommand="{Binding TagTappedCommand}"/-->
+
+
+    <!--/Shell.TitleView-->
+
+  <!--/Grid-->
+
+</views:NavigablePage>

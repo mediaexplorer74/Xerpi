@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,15 +58,44 @@ namespace Xerpi.ViewModels
             set => Set(ref _isLoading, value);
         }
 
+        private bool _compactMode;
+        public bool CompactMode
+        {
+            get => _compactMode;
+            set
+            {
+                Set(ref _compactMode, value);
+                _settingsService.CompactMode = value;
+            }
+        }
+
+        private bool _showScoreIcons;
+        public bool ShowScoreIcons
+        {
+            get => _showScoreIcons;
+            set
+            {
+                Set(ref _showScoreIcons, value);
+                _settingsService.ShowScoreIcons = value;
+            }
+        }
+
+        private static SettingsViewModel _instance;
+        public static SettingsViewModel Instance => _instance;
+
         public SettingsViewModel(ISettingsService settingsService,
             IDerpiNetworkService networkService,
             IMessagingCenter messagingService)
         {
+            _instance = this;
             _settingsService = settingsService;
             _networkService = networkService;
             _messagingService = messagingService;
 
             Title = "Settings";
+
+            CompactMode = _settingsService.CompactMode;
+            ShowScoreIcons = _settingsService.ShowScoreIcons;
 
             IsLoading = true;
         }

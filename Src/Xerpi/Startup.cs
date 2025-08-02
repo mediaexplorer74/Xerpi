@@ -11,8 +11,8 @@ using Xerpi.ViewModels;
 using System.Net.Http.Headers;
 using Xerpi.Views;
 using Xamarin.Forms;
-using Rg.Plugins.Popup.Contracts;
-using Rg.Plugins.Popup.Services;
+//using Rg.Plugins.Popup.Contracts;
+//using Rg.Plugins.Popup.Services;
 using Xerpi.Views.Popups;
 
 namespace Xerpi
@@ -69,7 +69,7 @@ namespace Xerpi
                 .AddSingleton<ISynchronizationContextService, SynchronizationContextService>()
                 .AddTransient<ISettingsService, SettingsService>()
                 .AddSingleton<IImageService, ImageService>()
-                .AddSingleton<IPopupNavigation>(_ => PopupNavigation.Instance)
+              //  .AddSingleton<IPopupNavigation>(_ => PopupNavigation.Instance)
                 .AddSingleton<IPopupService, PopupService>()
                 .AddSingleton<IMessagingCenter, MessagingCenter>(_ => (MessagingCenter)MessagingCenter.Instance);
 
@@ -88,7 +88,7 @@ namespace Xerpi
             var navService = services.GetRequiredService<INavigationService>();
             navService.RegisterViewModel<ImageGridViewModel, ImageGridPage>("images");
             navService.RegisterViewModel<ImageGalleryViewModel, ImageGalleryPage>("imagegallery");
-            navService.RegisterViewModel<AboutViewModel, AboutPage>("about");
+            //navService.RegisterViewModel<AboutViewModel, AboutPage>("about");
             navService.RegisterViewModel<SettingsViewModel, SettingsPage>("settings");
         }
 

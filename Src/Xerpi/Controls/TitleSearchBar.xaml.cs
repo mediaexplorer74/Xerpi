@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Rg.Plugins.Popup.Contracts;
+//using Rg.Plugins.Popup.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,6 +12,7 @@ namespace Xerpi.Controls
 {
     public partial class PostInfoBottomPanel : ContentView
     {
+
         private PanelState _panelState = PanelState.Maximized;
         public const double PanelHeight = 200;
         public const double MinimizedHeight = 30;
@@ -284,6 +285,20 @@ namespace Xerpi.Controls
                 }
             }
         }
+
+        public async void ForceUpdate()
+        {
+            // Update the UI of the bottom panel to reflect the loaded tags
+            //_panelState = PanelState.Maximized;
+            if (_panelState == PanelState.Toggling)
+            {
+                return; // Don't do anything if we're in the middle of animating
+            }
+
+            var targetState = _panelState == PanelState.Maximized ? PanelState.Minimized : PanelState.Maximized;
+
+            await SetPanelState(targetState);
+        }    
     }
 
     public enum PanelState

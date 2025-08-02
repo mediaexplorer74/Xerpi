@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Diagnostics;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -54,10 +55,11 @@ namespace Xerpi.Views
                 return;
             }
 
-            Debug.WriteLine($"[ImageGallery] Updating display for image ID: {ViewModel.CurrentImage.BackingImage.Id}");
+            var currentImageId = ViewModel.CurrentImage.BackingImage.Id;
+            Debug.WriteLine($"[ImageGallery] Updating display for image ID: {currentImageId}");
             
             // Ensure we're on the UI thread
-            Device.BeginInvokeOnMainThread(() =>
+            Device.BeginInvokeOnMainThread(async () =>
             {
                 try
                 {
@@ -72,7 +74,24 @@ namespace Xerpi.Views
                         ImageControl.Source = null;
                         ImageControl.Source = temp;
                         
-                        Debug.WriteLine($"[ImageGallery] Image source updated for ID: {ViewModel.CurrentImage.BackingImage.Id}");
+                        Debug.WriteLine($"[ImageGallery] Image source updated for ID: {currentImageId}");
+                    }
+                    
+                    // Ensure tags are loaded for the current image
+                    if (!ViewModel.CurrentImage.IsInitialized)
+                    {
+                        Debug.WriteLine($"[ImageGallery] Initializing data for image ID: {currentImageId}");
+                        await ViewModel.CurrentImage.InitExternalData(CancellationToken.None);
+                        
+                        // Force update the UI after tags are loaded
+                        OnPropertyChanged(nameof(ViewModel.CurrentImage));
+                        OnPropertyChanged(nameof(ViewModel.CurrentImage.Tags));
+                        
+                        // Update the bottom panel to show the loaded tags
+                        if (BottomPanel != null)
+                        {
+                            BottomPanel.ForceUpdate();
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -82,6 +101,8 @@ namespace Xerpi.Views
                 }
             });
         }
+
+      
 
         private void OnPanUpdated(object sender, PanUpdatedEventArgs e)
         {

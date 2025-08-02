@@ -105,14 +105,16 @@
                                  Size="25"/>
             </ShellContent.Icon>
         </ShellContent>
-        <MenuItem Text="Popular" Clicked="Popular_Clicked">
-            <MenuItem.IconImageSource>
+        <ShellContent Title="Popular"
+                      Route="popular"
+                      ContentTemplate="{DataTemplate local:ImageGridPage}">
+            <ShellContent.Icon>
                 <FontImageSource FontFamily="{StaticResource MaterialFontFamily}"
                                  Glyph="&#xF2D1;"
                                  Color="{DynamicResource PrimaryTextColor}"
                                  Size="25"/>
-            </MenuItem.IconImageSource>
-        </MenuItem>
+            </ShellContent.Icon>
+        </ShellContent>
         <ShellContent Title="Settings"                      
                       Route="settings"
                       ContentTemplate="{DataTemplate local:SettingsPage}">

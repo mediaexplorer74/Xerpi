@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -6,6 +6,14 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>$(WarningsAsErrors)</WarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>1</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,12 +31,11 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.18" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.18" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.18" />
-    <PackageReference Include="Rg.Plugins.Popup" Version="2.0.0.12" />
-    <PackageReference Include="Xamarin.CommunityToolkit" Version="1.2.0" />
+    <PackageReference Include="Xamarin.CommunityToolkit" Version="1.0.0-pre1" />
     <PackageReference Include="Xamarin.FFImageLoading" Version="2.4.11.982" />
     <PackageReference Include="Xamarin.FFImageLoading.Forms" Version="2.4.11.982" />
     <PackageReference Include="Xamarin.FFImageLoading.Svg.Forms" Version="2.4.11.982" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />  
+    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1821" />  
     <PackageReference Include="Xamarin.Essentials" Version="1.7.0" />
   </ItemGroup>
 
@@ -42,9 +49,6 @@
     <EmbeddedResource Update="Theme\LightTheme.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
-    <EmbeddedResource Update="Views\Popups\SortFilterPopup.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -53,6 +57,9 @@
     </Compile>
     <Compile Update="Theme\DarkTheme.xaml.cs">
       <DependentUpon>DarkTheme.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\ImageGalleryPage.xaml.cs">
+      <DependentUpon>ImageGalleryPage.xaml</DependentUpon>
     </Compile>
     <Compile Update="Views\ImageGridPage.xaml.cs">
       <DependentUpon>ImageGridPage.xaml</DependentUpon>

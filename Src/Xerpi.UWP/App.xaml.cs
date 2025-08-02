@@ -24,17 +24,17 @@ namespace Xerpi.UWP
 
                 rootFrame = new Frame();
 
-                Xamarin.Forms.Forms.SetFlags("Shell_UWP_Experimental", "CollectionView_Experimental", "CarouselView_Experimental");
+                Xamarin.Forms.Forms.SetFlags("Shell_UWP_Experimental");//, "CollectionView_Experimental", "CarouselView_Experimental");
                 _ = typeof(SvgCachedImage);
                 FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
-                Rg.Plugins.Popup.Popup.Init();
+                //Rg.Plugins.Popup.Popup.Init();
 
                 var assembliesToInclude = new List<Assembly>
                 {
                     typeof(CachedImage).GetTypeInfo().Assembly,
                     typeof(FFImageLoading.Forms.Platform.CachedImageRenderer).GetTypeInfo().Assembly,
                 };
-                assembliesToInclude.AddRange(Rg.Plugins.Popup.Popup.GetExtraAssemblies());
+                //assembliesToInclude.AddRange(Rg.Plugins.Popup.Popup.GetExtraAssemblies());
 
                 Xamarin.Forms.Forms.Init(e, assembliesToInclude);
 
