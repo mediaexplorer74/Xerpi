@@ -19,7 +19,7 @@
     <Shell.TitleView>
         <controls:TitleSearchBar x:Name="TitleSearch" 
                                  Title="{Binding Title}"
-                                 Query="{Binding ImageService.CurrentSearchParameters.SearchQuery}"
+                                 Query="{Binding CurrentSearchQuery, Mode=TwoWay}"
                                  SearchCommand="{Binding SearchTriggeredCommand}"
                                  SearchCommandParameter="{Binding Source={x:Reference TitleSearch}, Path=Query}"
                                  SearchSortOptionsChanged="TitleSearch_SearchSortOptionsChanged"/>

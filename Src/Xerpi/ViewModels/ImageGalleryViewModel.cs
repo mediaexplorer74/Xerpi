@@ -1,6 +1,7 @@
 using DynamicData;
 using DynamicData.Binding;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -28,12 +29,43 @@ namespace Xerpi.ViewModels
         private ApiImage? _navParameterImage;
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
+        private int _currentImageIndex;
+        public int CurrentImageIndex
+        {
+            get => _currentImageIndex;
+            set
+            {
+                if (Set(ref _currentImageIndex, value) && value >= 0 && value < (Images?.Count ?? 0))
+                {
+                    CurrentImage = Images[value];
+                    OnPropertyChanged(nameof(CanGoBack));
+                    OnPropertyChanged(nameof(CanGoForward));
+                    OnPropertyChanged(nameof(CurrentImageNumber));
+                }
+            }
+        }
+
         private DetailedImageViewModel? _currentImage;
-        public DetailedImageViewModel CurrentImage
+        public DetailedImageViewModel? CurrentImage
         {
             get => _currentImage;
-            set => Set(ref _currentImage, value);
+            private set
+            {
+                if (_currentImage != value)
+                {
+                    _currentImage = value;
+                    OnPropertyChanged();
+                    if (value != null)
+                    {
+                        Title = $"{value.BackingImage.Id}";
+                    }
+                }
+            }
         }
+
+        public bool CanGoBack => CurrentImageIndex > 0;
+        public bool CanGoForward => CurrentImageIndex < (Images?.Count - 1 ?? 0);
+        public int CurrentImageNumber => CurrentImageIndex + 1;
 
         private ReadOnlyObservableCollection<DetailedImageViewModel> _images;
         public ReadOnlyObservableCollection<DetailedImageViewModel> Images
@@ -49,13 +81,6 @@ namespace Xerpi.ViewModels
             set => Set(ref _isImageViewerOpen, value);
         }
 
-        private int _currentImageNumber = 0;
-        public int CurrentImageNumber
-        {
-            get => _currentImageNumber;
-            set => Set(ref _currentImageNumber, value);
-        }
-
         public uint CurrentTotalImages => _imageService.CurrentTotalImages;
 
         public Command<DetailedImageViewModel> CurrentImageChangedCommand { get; private set; }
@@ -64,6 +89,8 @@ namespace Xerpi.ViewModels
         public Command ThresholdReachedCommand { get; private set; }
         public Command OpenInBrowserCommand { get; private set; }
         public Command<ApiTag> TagTappedCommand { get; private set; }
+        public Command NextImageCommand { get; private set; }
+        public Command PreviousImageCommand { get; private set; }
 
         public ImageGalleryViewModel(IImageService imageService,
             INavigationService navigationService,
@@ -84,6 +111,8 @@ namespace Xerpi.ViewModels
             ThresholdReachedCommand = new Command(ThresholdReached);
             OpenInBrowserCommand = new Command(OpenInBrowserPressed);
             TagTappedCommand = new Command<ApiTag>(TagTapped);
+            NextImageCommand = new Command(() => MoveToImage(CurrentImageIndex + 1));
+            PreviousImageCommand = new Command(() => MoveToImage(CurrentImageIndex - 1));
 
             _imageService.CurrentImages.Connect()
                  .Filter(x => !x.MimeType.Contains("video")) // TODO: Make sure this only covers webm, and not other things we can actually handle
@@ -128,54 +157,108 @@ namespace Xerpi.ViewModels
 
         private async void NavigateToSelectedImage()
         {
+            if (_navParameterImage == null)
+            {
+                Debug.WriteLine("[ImageGallery] No navigation parameter image set");
+                return;
+            }
+
+            Debug.WriteLine($"[ImageGallery] Looking for image with ID: {_navParameterImage.Id}");
+
             try
             {
-                if (_navParameterImage == null)
+                var foundIndex = Images?.ToList().FindIndex(x => x?.BackingImage?.Id == _navParameterImage.Id) ?? -1;
+                if (foundIndex >= 0)
                 {
-                    Debug.WriteLine("[ImageGallery] No navigation parameter image set");
-                    return;
+                    // Image found in collection
+                    Debug.WriteLine($"[ImageGallery] Found existing image at index {foundIndex}");
+                    CurrentImageIndex = foundIndex;
                 }
-
-                Debug.WriteLine($"[ImageGallery] Looking for image with ID: {_navParameterImage.Id}");
-                
-                // First, check if we already have the image in our collection
-                var foundImage = Images.FirstOrDefault(x => x.BackingImage.Id == _navParameterImage.Id);
-                if (foundImage != null)
+                else
                 {
-                    Debug.WriteLine($"[ImageGallery] Found existing image with ID: {_navParameterImage.Id}");
-                    CurrentImage = foundImage;
-                    _navParameterImage = null;
-                    return;
+                    // Create and add new image to collection
+                    Debug.WriteLine("[ImageGallery] Image not found, adding to collection");
+                    var newImageVm = new DetailedImageViewModel(_navParameterImage, _imageService, _networkService);
+
+                    try
+                    {
+                        if (!newImageVm.IsInitialized)
+                        {
+                            await newImageVm.InitExternalData(CancellationToken.None);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[ImageGallery] Error initializing image data: {ex.Message}");
+                    }
+
+                    // Add to collection and set as current
+                    var newList = Images?.ToList() ?? new List<DetailedImageViewModel>();
+                    newList.Insert(0, newImageVm);
+
+                    var newCollection = new ObservableCollectionExtended<DetailedImageViewModel>(newList);
+                    Images = new ReadOnlyObservableCollection<DetailedImageViewModel>(newCollection);
+
+                    // Set as current after collection is updated
+                    CurrentImageIndex = 0;
                 }
-
-                // If not found, we need to load it
-                Debug.WriteLine($"[ImageGallery] Image not found in current collection, creating new view model");
-                var newImageVm = new DetailedImageViewModel(_navParameterImage, _imageService, _networkService);
-                await newImageVm.InitExternalData(CancellationToken.None);
-
-                // Add to our collection and set as current
-                //(Images as ObservableCollectionExtended<DetailedImageViewModel>)?.Add(newImageVm);
-                var images = new ObservableCollectionExtended<DetailedImageViewModel>(Images);
-                images.Add(newImageVm);
-
-                CurrentImage = newImageVm;
-                _navParameterImage = null;
-                
-                Debug.WriteLine($"[ImageGallery] Successfully loaded and set image {newImageVm.BackingImage.Id}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[ImageGallery] Error navigating to selected image: {ex}");
+                Debug.WriteLine($"[ImageGallery] Error in NavigateToSelectedImage: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+            finally
+            {
+                _navParameterImage = null;
+            }
+        }
+
+        private void MoveToImage(int index)
+        {
+            if (index >= 0 && index < (Images?.Count ?? 0))
+            {
+                CurrentImageIndex = index;
             }
         }
 
         private async void CurrentImageChanged(DetailedImageViewModel newImage)
         {
-            _cts.Cancel();
-            _cts = new CancellationTokenSource();
-            Title = $"{newImage.BackingImage.Id}";
-            CurrentImageNumber = CurrentImageNumber = Images.IndexOf(CurrentImage) + 1;
-            await newImage.InitExternalData(_cts.Token);
+            try
+            {
+                if (newImage?.BackingImage == null)
+                {
+                    Debug.WriteLine("[ImageGallery] Cannot change to null image");
+                    return;
+                }
+
+                _cts.Cancel();
+                _cts = new CancellationTokenSource();
+                
+                // Update the title with the image ID
+                Title = $"{newImage.BackingImage.Id}";
+                
+                // Don't update CurrentImageNumber here to prevent scrolling issues
+                // The CarouselView will handle the scrolling automatically
+                
+                // Initialize the new image's data if not already loaded
+                if (!newImage.IsInitialized)
+                {
+                    try
+                    {
+                        await newImage.InitExternalData(_cts.Token);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[ImageGallery] Error initializing image data: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ImageGallery] Error in CurrentImageChanged: {ex.Message}");
+                Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
         }
 
         private bool _backPayloadPrepared = false;

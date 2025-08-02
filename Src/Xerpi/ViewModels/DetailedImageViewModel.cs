@@ -61,6 +61,7 @@ namespace Xerpi.ViewModels
         public Command DownloadStartedCommand { get; private set; }
         public Command DownloadProgressCommand { get; private set; }
         public Command FinishCommand { get; private set; }
+        public bool IsInitialized { get; internal set; }
 
         public DetailedImageViewModel(ApiImage backingImage,
             IImageService imageService,

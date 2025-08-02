@@ -19,7 +19,7 @@ namespace Xerpi
 {
     public static class Startup
     {
-        public static IServiceProvider ServiceProvider { get; set; }
+        public static IServiceProvider? ServiceProvider { get; set; }
         public static ThemeHandler? ThemeHandler { get; private set; }
 
         public static void Init(Action<HostBuilderContext, IServiceCollection> nativeConfigureServices)

@@ -1,25 +1,24 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Xerpi.Converters;
 
 namespace Xerpi.Models.API
 {
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
     public class ApiTag : IEquatable<ApiTag>
     {
         public uint Id { get; set; }
-        public string Name { get; set; }
-        public string Slug { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
         [JsonPropertyName("short_description")]
-        public string ShortDescription { get; set; }
+        public string ShortDescription { get; set; } = string.Empty;
 
         public uint Images { get; set; }
 
         [JsonPropertyName("spoiler_image_url")]
-        public string SpoilerImageUri { get; set; }
+        public string SpoilerImageUri { get; set; } = string.Empty;
 
         [JsonPropertyName("aliased_to")]
         public string? AliasedTo { get; set; }
@@ -27,16 +26,16 @@ namespace Xerpi.Models.API
         [JsonPropertyName("aliased_to_id")]
         public uint? AlisedToId { get; set; }
 
-        public string Namespace { get; set; }
+        public string Namespace { get; set; } = string.Empty;
 
         [JsonPropertyName("name_in_namespace")]
-        public string NameInNamespace { get; set; }
+        public string NameInNamespace { get; set; } = string.Empty;
 
         [JsonPropertyName("implied_tags")]
-        public string[] ImpliedTags { get; set; }
+        public string[] ImpliedTags { get; set; } = Array.Empty<string>();
 
         [JsonPropertyName("implied_tag_ids")]
-        public uint[] ImpliedTagIds { get; set; }
+        public uint[] ImpliedTagIds { get; set; } = Array.Empty<uint>();
 
         [JsonConverter(typeof(TagCategoryConverter))]
         public TagCategory Category { get; set; }
@@ -66,7 +65,11 @@ namespace Xerpi.Models.API
 
         public static bool operator ==(ApiTag? left, ApiTag? right)
         {
-            return EqualityComparer<ApiTag>.Default.Equals(left, right);
+            if (left is null)
+            {
+                return right is null;
+            }
+            return left.Equals(right);
         }
 
         public static bool operator !=(ApiTag? left, ApiTag? right)
@@ -74,7 +77,6 @@ namespace Xerpi.Models.API
             return !(left == right);
         }
     }
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
 
     public enum TagCategory
     {

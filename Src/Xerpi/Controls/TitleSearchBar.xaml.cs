@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Rg.Plugins.Popup.Contracts;
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace Xerpi.Controls
 
         private State _currentState;
 
-        public event EventHandler<SearchSortOptions> SearchSortOptionsChanged;
+        public event EventHandler<SearchSortOptions> SearchSortOptionsChanged = delegate { };
 
         public static BindableProperty TitleProperty = BindableProperty.Create(
             nameof(Title),

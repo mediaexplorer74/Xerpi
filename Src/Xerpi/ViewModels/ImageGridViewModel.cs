@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,10 +35,33 @@ namespace Xerpi.ViewModels
             set => Set(ref _isRefreshing, value);
         }
 
-        public string CurrentSearchQuery => _imageService.CurrentSearchParameters.SearchQuery;
-        private void ImageService_CurrentSearchQueryChanged(object _, SearchParameters __)
+        private string _currentSearchQuery = string.Empty;
+        public string CurrentSearchQuery
         {
-            OnPropertyChanged(nameof(CurrentSearchQuery));
+            get => _currentSearchQuery ?? _imageService.CurrentSearchParameters.SearchQuery;
+            set
+            {
+                if (_currentSearchQuery != value)
+                {
+                    _currentSearchQuery = value;
+                    OnPropertyChanged();
+                    // Trigger search when the query changes
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        SearchQueryChanged(value).ConfigureAwait(false);
+                    }
+                }
+            }
+        }
+
+        private void ImageService_CurrentSearchQueryChanged(object _, SearchParameters parameters)
+        {
+            // Only update if the change didn't originate from this view model
+            if (_currentSearchQuery != parameters.SearchQuery)
+            {
+                _currentSearchQuery = parameters.SearchQuery;
+                OnPropertyChanged(nameof(CurrentSearchQuery));
+            }
         }
 
         public Command RefreshCommand { get; }

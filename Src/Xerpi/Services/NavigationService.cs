@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xerpi.ViewModels;
@@ -74,7 +75,19 @@ namespace Xerpi.Services
             Page destinationPage;
             if (destinationIndex == 0)
             {
-                destinationPage = ((IShellContentController)Shell.Current.CurrentItem.CurrentItem.CurrentItem).Page;
+                // Safely navigate through the shell hierarchy with null checks
+                var currentItem = Shell.Current?.CurrentItem;
+                var currentSection = currentItem?.CurrentItem;
+                var shellContent = currentSection?.CurrentItem;
+                if (shellContent is IShellContentController shellContentController)
+                {
+                    destinationPage = shellContentController.Page;
+                }
+                else
+                {
+                    // Fallback to the first page in the navigation stack if shell navigation fails
+                    destinationPage = currentContent.Navigation.NavigationStack.FirstOrDefault();
+                }
             }
             else
             {

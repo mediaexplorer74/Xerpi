@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Xerpi.ViewModels.Popups
 {
@@ -6,7 +6,7 @@ namespace Xerpi.ViewModels.Popups
     {
         public event EventHandler? Closed;
 
-        public T Result { get; protected set; }
+        public T Result { get; protected set; } = default!;
 
         protected void Close()
         {

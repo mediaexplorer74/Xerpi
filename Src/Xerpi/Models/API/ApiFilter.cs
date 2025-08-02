@@ -1,30 +1,31 @@
-﻿using System.Text.Json.Serialization;
+using System;
+using System.Text.Json.Serialization;
 
 namespace Xerpi.Models.API
 {
     public class ApiFilter
     {
         public uint Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
         [JsonPropertyName("hidden_tag_ids")]
-        public uint[] HiddenTagIds { get; set; }
+        public uint[] HiddenTagIds { get; set; } = Array.Empty<uint>();
 
         [JsonPropertyName("hidden_tags")]
-        public string[] HiddenTags { get; set; }
+        public string[] HiddenTags { get; set; } = Array.Empty<string>();
 
         [JsonPropertyName("spoilered_tag_ids")]
-        public uint[] SpoileredTagIds { get; set; }
+        public uint[] SpoileredTagIds { get; set; } = Array.Empty<uint>();
 
         [JsonPropertyName("spoilered_tags")]
-        public string[] SpoileredTags { get; set; }
+        public string[] SpoileredTags { get; set; } = Array.Empty<string>();
 
         [JsonPropertyName("hidden_complex")]
-        public string HiddenComplex { get; set; }
+        public string HiddenComplex { get; set; } = string.Empty;
 
         [JsonPropertyName("spoilered_complex")]
-        public string SpoileredComplex { get; set; }
+        public string SpoileredComplex { get; set; } = string.Empty;
         public bool Public { get; set; }
         public bool System { get; set; }
 

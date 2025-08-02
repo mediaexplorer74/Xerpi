@@ -105,6 +105,7 @@ namespace Xerpi.Views
 
         private async void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // Skip if we're already processing a selection or the page is disposed
             if (_isProcessingSelection || _isDisposed)
             {
                 Debug.WriteLine("[ImageGridPage] Selection already in progress or page disposed");
@@ -115,12 +116,14 @@ namespace Xerpi.Views
                 return;
             }
 
+            // Skip if no selection
             if (e.CurrentSelection == null || e.CurrentSelection.Count == 0)
             {
                 Debug.WriteLine("[ImageGridPage] No selection");
                 return;
             }
 
+            // Validate sender
             if (!(sender is CollectionView cv))
             {
                 Debug.WriteLine("[ImageGridPage] Sender is not a CollectionView");
@@ -132,38 +135,68 @@ namespace Xerpi.Views
             
             try
             {
-                // Get the selected image before clearing the selection
-                if (!(e.CurrentSelection.FirstOrDefault() is ApiImage selectedImage))
+                // Get the selected item
+                var selectedItem = e.CurrentSelection.FirstOrDefault();
+                if (selectedItem == null)
                 {
-                    Debug.WriteLine("[ImageGridPage] Selected item is not an ApiImage");
+                    Debug.WriteLine("[ImageGridPage] No item selected");
+                    return;
+                }
+
+                // Try to cast to ApiImage
+                if (!(selectedItem is ApiImage selectedImage))
+                {
+                    Debug.WriteLine($"[ImageGridPage] Selected item is of type {selectedItem.GetType().Name}, expected ApiImage");
                     return;
                 }
 
                 Debug.WriteLine($"[ImageGridPage] Selected image ID: {selectedImage.Id}");
                 
-                // Clear selection to allow selecting the same item again
-                cv.SelectedItem = null;
+                // Clear selection immediately to allow re-selection of the same item
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    try
+                    {
+                        cv.SelectedItem = null;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[ImageGridPage] Error clearing selection: {ex.Message}");
+                    }
+                });
                 
                 // Small delay to ensure UI is responsive
-                await Task.Delay(100);
+                await Task.Delay(50);
                 
                 if (_isDisposed)
                 {
                     Debug.WriteLine("[ImageGridPage] Page was disposed during selection processing");
-                //    return;
-                //}
+                    return;
+                }
 
                 // Unsubscribe from any existing messages to prevent duplicates
-                _messagingService?.Unsubscribe<ImageGridViewModel, NavigatedBackToImageGridMessage>(this, string.Empty);
+                try
+                {
+                    _messagingService?.Unsubscribe<ImageGridViewModel, NavigatedBackToImageGridMessage>(this, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[ImageGridPage] Error unsubscribing from messages: {ex.Message}");
+                }
                 
                 // Trigger navigation
                 Debug.WriteLine($"[ImageGridPage] Navigating to image {selectedImage.Id}");
-                ViewModel.ImageSelected(selectedImage);
-                }
-                else
+                Device.BeginInvokeOnMainThread(() =>
                 {
-                    Debug.WriteLine("[ImageGridPage] Selected item is not an ApiImage");
-                }
+                    try
+                    {
+                        ViewModel.ImageSelected(selectedImage);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[ImageGridPage] Error in ImageSelected: {ex.Message}");
+                    }
+                });
             }
             catch (Exception ex)
             {
